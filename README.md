@@ -21,7 +21,8 @@ For full disclosure, you can see the 'vibe coding' session that created this cod
 1. Install Python.
 2. Install websockets and asyncio via pip.
 3. Download this repo.
-4. Run cli.py for an example of how to use the library.
+4. Edit config.json with your printer IP and mainboard ID. You can find the mainboard ID by inspecting the messages on the ELEGOO web UI through dev tools.
+5. Run cli.py for an example of how to use the library.
 
 # cli.py - Usage
 `cli.py [-h] [-l] [--clean] [{0,1,128,129,130,131,134,258,320,386,403}] [parameter]`
