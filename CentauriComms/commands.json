@@ -1,0 +1,78 @@
+{
+  "0": {
+    "code": 0,
+    "description": "Request Status Update",
+    "data": {}
+  },
+  "1": {
+    "code": 1,
+    "description": "Get Device Attributes",
+    "data": {}
+  },
+  "128": {
+    "code": 128,
+    "description": "Start Print Job",
+    "requires_parameter": "filename",
+    "data": {
+      "Filename": "",
+      "StartLayer": 0,
+      "Calibration_switch": 0,
+      "PrintPlatformType": 0,
+      "Tlp_Switch": 0
+    }
+  },
+  "129": {
+    "code": 129,
+    "description": "Pause Print",
+    "data": {}
+  },
+  "130": {
+    "code": 130,
+    "description": "Cancel Print",
+    "data": {}
+  },
+  "131": {
+    "code": 131,
+    "description": "Resume Print",
+    "data": {}
+  },
+  "134": {
+    "code": 134,
+    "description": "Unknown / No-op",
+    "data": {}
+  },
+  "258": {
+    "code": 258,
+    "description": "List Files",
+    "data": {
+      "Url": "/local"
+    }
+  },
+  "320": {
+    "code": 320,
+    "description": "Get Print History",
+    "data": {}
+  },
+  "386": {
+    "code": 386,
+    "description": "Get Camera Stream URL",
+    "data": {
+      "Enable": 1
+    }
+  },
+  "403": {
+    "code": 403,
+    "description": "Toggle Light",
+    "data": {
+      "LightStatus": {
+        "SecondLight": true,
+        "RgbLight": [
+          0,
+          0,
+          0
+        ]
+      }
+    }
+  }
+}
+
