@@ -15,7 +15,7 @@ This project was also an experiment into how far AI has come in its coding abili
 - I asked it to scrape the commands from the afformentioned GitHub page, but it continually daydreamed a set of made up codes, even though it insisted it got it from that page. The codes were close enough to reality that if you weren't reviewing the script, it would compile, but nothing would return from the printer.
 - Sometimes it would just go nuts and we-write stuff that was working, into non-working code.
 
-For full disclosure, you can see the 'vibe coding' session that created this code here: https://gemini.google.com/share/ab5c890f2540.
+For full disclosure, you can see the 'vibe coding' session that created this code here: https://gemini.google.com/share/ab5c890f2540. I have since refactored the code to make it easier to read and understand.
 
 # Set-up
 1. Install Python.
@@ -25,10 +25,7 @@ For full disclosure, you can see the 'vibe coding' session that created this cod
 5. Run cli.py for an example of how to use the library.
 
 # cli.py - Usage
-`cli.py [-h] [-l] [--clean] [{0,1,128,129,130,131,134,258,320,386,403}] [parameter]`
+`cli.py [{0,1,128,129,130,131,134,258,320,386,403}] [parameter]`
 
 Options:
-- `-h, --help` Standard help output
-- `-l, --list-commands` List all available commands and their descriptions.
-- `--clean` Provides simplified, clean output removing JSON noise.
 - `[parameter]` If the command code requires any parmeters, enter them here.
