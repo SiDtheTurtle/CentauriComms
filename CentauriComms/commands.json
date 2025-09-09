@@ -12,13 +12,13 @@
   "128": {
     "code": 128,
     "description": "Start Print Job",
-    "requires_parameter": "filename",
+    "parameter": "Filename",
     "data": {
       "Filename": "",
       "StartLayer": 0,
       "Calibration_switch": 0,
       "PrintPlatformType": 0,
-      "Tlp_Switch": 0
+      "Tlp_Switch": 1
     }
   },
   "129": {
