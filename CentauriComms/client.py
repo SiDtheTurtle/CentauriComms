@@ -6,24 +6,25 @@ import websockets
 import os
 
 class CentauriClient:
-    """A client for sending commands to an ELEGOO Centauri Carbon 3D printer."""
+    # A client for sending commands to an ELEGOO Centauri Carbon 3D printer.
 
-    def __init__(self, config_path="config.json"):
-        """
-        Initializes the client.
-        
-        Args:
-            config_path (str): Path to the user's config.json file.
-        """
-        self.config = self._load_json_file(config_path)
-        
-        # Load commands.json from the same directory as this client.py file
-        here = os.path.dirname(os.path.abspath(__file__))
-        commands_path = os.path.join(here, "commands.json")
-        self.commands = self._load_json_file(commands_path)
+    def __init__(self):
+        # Class entrypoint
+
+        # Get the path to this script
+        abs_path = os.path.dirname(os.path.abspath(__file__))
+
+        # Define location for required json files
+        config_file = os.path.join(abs_path,"config.json")
+        commands_file = os.path.join(abs_path,"commands.json")
+
+        # Load json files
+        self.config = self._load_json_file(config_file)
+        self.commands = self._load_json_file(commands_file)
 
     def _load_json_file(self, filename):
-        """Loads data from a JSON file."""
+        # Simple wrapper to load json file with error handling
+
         try:
             with open(filename, 'r') as f:
                 return json.load(f)
@@ -34,46 +35,55 @@ class CentauriClient:
 
     def _create_printer_command(self, command_code: int, command_data: dict = None) -> dict:
         """Creates a message payload in the printer's specific format."""
+        
+        # Some commands have no data, just the code, if so send an empty data message
         if command_data is None: command_data = {}
+
+        # Each message needs a unique uuid4 hex code
         request_id = uuid.uuid4().hex
+
+        # Each message needs the correct maindboard id, or it will ignore the message
         mainboard_id = self.config.get("mainboard_id", "")
         
+        # Each message needs a timestamp, have not experimented if this needs to be anywhere near the actual machine time
+        timestamp = int(time.time())
+
+        # Build up the request message
         message = {
-            "Id": "",
+            #"Id": "", # Doesn't seem to be required, commenting until proven
             "Data": {
-                "Cmd": command_code, "Data": command_data, "RequestID": request_id,
-                "MainboardID": mainboard_id, "TimeStamp": int(time.time() * 1000), "From": 1
+                "Cmd": command_code, "Data": command_data, "RequestID": request_id, "MainboardID": mainboard_id, "TimeStamp": timestamp, "From": 1
             }
         }
+
+        # Send the message back up to the command function
         return message
 
     async def send_command(self, command, parameter=None, output_format='raw'):
-        """
-        Connects to the printer, sends a command, and returns the response.
-        
-        Args:
-            command (str): The command code (e.g., '258').
-            parameter (str, optional): An optional parameter for the command.
-            output_format (str): 'raw' for the full response, 'clean' for a simplified version.
-            
-        Returns:
-            A dictionary containing the printer's response.
-        """
+        # Send command to the printer and returns whatever response, if any
+        # command (str): the numerical command code
+        # parameter (str, optional): any parameter text for that code, for example the filename for a print command
+
+        # Get the printer's IP address from the config file
         ip_address = self.config.get("printer_ip")
         if not ip_address:
-            raise ValueError("printer_ip not found in config.json")
-            
+            raise ValueError("Printer IP adress setting not found in config.json!")
+
+        # Configure the websocket URL
         address = f"ws://{ip_address}/websocket"
         
+        # Get the chosen command's json from the commands file
         chosen_command = self.commands.get(command)
         if not chosen_command:
-            raise ValueError(f"Command '{command}' not found in commands.json")
+            raise ValueError(f"Command '{command}' not found in commands.json!")
 
         command_data = chosen_command.get("data", {}).copy()
 
-        if chosen_command.get("requires_parameter") == "filename" and parameter:
+        # If the chosen command requires a paremter, set it in the message json
+        if chosen_command.get("parameter") == "Filename" and parameter:
             command_data['Filename'] = f"/local/{parameter}.gcode"
 
+        # Send the json message over websockets
         try:
             async with websockets.connect(address) as websocket:
                 message = self._create_printer_command(chosen_command['code'], command_data)
@@ -81,29 +91,9 @@ class CentauriClient:
                 response_str = await websocket.recv()
                 response_json = json.loads(response_str)
 
-                # --- UPDATED: Generic clean logic ---
-                if output_format == 'clean':
-                    try:
-                        # Extract the nested 'Data' object
-                        data_payload = response_json['Data']['Data']
-                        
-                        # If it's a dictionary, remove the 'Ack' field and return the rest
-                        if isinstance(data_payload, dict):
-                            cleaned_data = data_payload.copy()
-                            cleaned_data.pop('Ack', None) # Safely remove 'Ack'
-                            return cleaned_data
-                        
-                        # If it's not a dictionary (e.g., just a number), return it as is
-                        return data_payload
-
-                    except (KeyError, TypeError):
-                        # If the structure is unexpected, fall back to the raw response
-                        return response_json 
-                else:
-                    return response_json
+                return response_json
 
         except ConnectionRefusedError:
             raise ConnectionError(f"Connection refused. Is the printer on at {ip_address}?")
         except Exception as e:
             raise RuntimeError(f"An unexpected error occurred: {e}")
-
